@@ -1,6 +1,6 @@
 import json
 
-with open("words.txt", "r") as f:
+with open("python_program/words.txt", "r") as f:
     words = f.readline().split("   ")
     
 history = {word: [0, 0] for word in words}

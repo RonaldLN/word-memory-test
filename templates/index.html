@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>单词记忆训练</title>
+    <style>
+        body { max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+        #word { font-size: 2em; margin: 20px; padding: 20px; border: 1px solid #ccc; }
+        button { padding: 15px 30px; margin: 10px; font-size: 1.1em; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="word">加载中...</div>
+    <button onclick="handleAction(true)">记得 ✓</button>
+    <button onclick="handleAction(false)">忘记 ✗</button>
+    <button onclick="location.href='/logout'">退出</button>
+
+    <script>
+        let currentWord = null;
+        
+        function updateWord(word) {
+            document.getElementById('word').textContent = word || '加载中...';
+        }
+
+        function handleAction(remembered) {
+            fetch('/next', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    current_word: currentWord,
+                    remembered: remembered
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                currentWord = data.word;
+                updateWord(currentWord);
+            });
+        }
+
+        // 初始加载
+        fetch('/next', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                currentWord = data.word;
+                updateWord(currentWord);
+            });
+    </script>
+</body>
+</html>
