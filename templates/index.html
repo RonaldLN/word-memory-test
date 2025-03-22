@@ -12,7 +12,7 @@
     <div id="word">加载中...</div>
     <button onclick="handleAction(true)">记得 ✓</button>
     <button onclick="handleAction(false)">忘记 ✗</button>
-    <button onclick="location.href='/logout'">退出</button>
+    <button onclick="location.href='{{ url_for("logout") }}'">退出</button>
 
     <script>
         let currentWord = null;
@@ -21,8 +21,10 @@
             document.getElementById('word').textContent = word || '加载中...';
         }
 
+        const BASE_PATH = '{{ url_for("index") }}'.replace('/','');  // 获取应用基础路径
+
         function handleAction(remembered) {
-            fetch('/next', {
+            fetch(`${BASE_PATH}/next`, {  // 动态拼接路径
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -38,7 +40,7 @@
         }
 
         // 初始加载
-        fetch('/next', { method: 'POST' })
+        fetch(`${BASE_PATH}/next`, { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 currentWord = data.word;

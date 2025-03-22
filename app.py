@@ -11,6 +11,22 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret')
 PASSWORD = os.getenv('APP_PASSWORD', 'default-password')
 
+# 添加应用前缀中间件
+class ReverseProxied:
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        script_name = environ.get('HTTP_X_SCRIPT_NAME', '')
+        if script_name:
+            environ['SCRIPT_NAME'] = script_name
+            path_info = environ['PATH_INFO']
+            if path_info.startswith(script_name):
+                environ['PATH_INFO'] = path_info[len(script_name):]
+        return self.app(environ, start_response)
+    
+app.wsgi_app = ReverseProxied(app.wsgi_app)
+
 class WordMemoryTest:
     def __init__(self, word_list, history_file='history.json'):
         self.word_list = word_list
@@ -70,6 +86,7 @@ def login():
 def logout():
     session.pop('authenticated', None)
     session.pop('last_word', None)
+    # 使用url_for确保重定向路径正确
     return redirect(url_for('login'))
 
 @app.route('/')
